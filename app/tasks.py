@@ -10,14 +10,14 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         - Do NOT skip any line, table, or section
         - Extract ALL requirements in structured format
         - Include:
-          â€¢ Functional requirements
-          â€¢ Non-functional requirements
-          â€¢ Field validations
-          â€¢ Business rules
-          â€¢ Conditions
-          â€¢ Workflows
-          â€¢ API/integration points (if any)
-          â€¢ Dependencies
+          - Functional requirements
+          - Non-functional requirements
+          - Field validations
+          - Business rules
+          - Conditions
+          - Workflows
+          - API/integration points (if any)
+          - Dependencies
 
         FRS:
         {frs_text}
@@ -30,10 +30,9 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         agent=planner
     )
 
-    # ðŸ”¹ Task 2: Test Case Generation (DETAILED + INDUSTRY)
     task2 = Task(
         description="""
-        Using the extracted requirements, generate EXHAUSTIVE test cases.
+        Using the extracted requirements, generate comprehensive test cases.
 
         MUST COVER:
         - Functional test cases
@@ -48,27 +47,40 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         - Role-based access scenarios
         - Security validations
 
+        IMPORTANT LENGTH RULES:
+        - Generate as many useful test cases as needed, but keep EACH test case concise
+        - Do NOT write exaggerated or repetitive text such as "very very very..."
+        - Do NOT pad descriptions with filler words
+        - Keep "Function List/Test case description" under 20 words
+        - Keep "Condition/Feature to be tested" under 25 words
+        - Keep "data set / values" under 25 words unless specific values are required
+        - Keep "expected_result" under 35 words
+        - Keep "steps" concise: maximum 5 short numbered actions in one line or one compact string
+        - Merge similar edge cases instead of creating verbose versions of the same case
+        - Prefer compact, high-signal wording over long narrative explanations
+
         Output STRICT JSON:
         [
-         {
-            Test case No.: "...",
-            Function List/Test case description: "...",
-            Condition/Feature to be tested: "...",
+          {{
+            "Test case No.": "...",
+            "Function List/Test case description": "...",
+            "Condition/Feature to be tested": "...",
             "steps": "...",
-            data set / values: "...",
+            "data set / values": "...",
             "expected_result": "..."
-          }
+          }}
         ]
 
         Ensure:
-        - No missing scenarios
-        - Maximum coverage
+        - Broad coverage
+        - Clear wording
+        - No unnecessary repetition
+        - No oversized test case entries
         """,
         expected_output="Comprehensive JSON test cases",
         agent=generator
     )
 
-    # ðŸ”¹ Task 3: Review + Improve
     task3 = Task(
         description="""
         Review ALL generated test cases.
@@ -76,16 +88,19 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         Perform:
         - Gap analysis (find missing cases)
         - Improve weak test cases
-        - Add:
-          â€¢ Edge cases
-          â€¢ Boundary cases
-          â€¢ Negative scenarios
-          â€¢ Complex real-world scenarios
+        - Add only necessary:
+          - Edge cases
+          - Boundary cases
+          - Negative scenarios
+          - Complex real-world scenarios
 
-        Ensure:
-        - Industry-level quality
-        - No duplication
-        - Maximum coverage
+        IMPORTANT REVIEW RULES:
+        - Remove duplicates and overlapping cases
+        - Rewrite any overly long test case into a concise version
+        - Eliminate repetitive filler text
+        - If a case contains repeated words or runaway text, replace it with a compact version
+        - Keep each field short and readable
+        - Preserve coverage, but reduce verbosity
 
         Return improved test cases in JSON format.
         """,
@@ -93,7 +108,6 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         agent=critic
     )
 
-    # ðŸ”¹ Task 4: Final Output (STRICT FORMAT)
     task4 = Task(
         description="""
         Finalize ALL test cases.
@@ -103,22 +117,30 @@ def get_tasks(frs_text, planner, generator, critic, refiner):
         - No duplicates
         - No irrelevant cases
         - Proper formatting
+        - Keep all useful test cases, but make each one concise
+
+        STRICT OUTPUT RULES:
+        - Return valid JSON array only
+        - Do NOT use markdown fences
+        - Do NOT add explanation
+        - Do NOT add text outside JSON
+        - Reject and rewrite any test case containing repeated filler patterns
+        - Do NOT allow runaway text like "very very very..."
+        - Trim each field to concise business-ready wording
+        - Keep "steps" short and practical
+        - Keep each object compact enough for Excel row output
 
         Return STRICT JSON ONLY in this format:
         [
-          {
+          {{
             "Test case No.": "...",
             "Function List/Test case description": "...",
             "Condition/Feature to be tested": "...",
             "steps": "...",
             "data set / values": "...",
             "expected_result": "..."
-          }
+          }}
         ]
-
-        IMPORTANT:
-        - Do NOT add explanation
-        - Do NOT add text outside JSON
         """,
         expected_output="Final structured JSON test cases",
         agent=refiner
