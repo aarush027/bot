@@ -1,3 +1,4 @@
+import os
 from crewai import Crew
 
 from app.agents import get_agents

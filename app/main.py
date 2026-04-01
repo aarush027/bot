@@ -1,4 +1,6 @@
 from fastapi import FastAPI, UploadFile, File
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import json
 import os
 import re
@@ -17,11 +19,38 @@ OUTPUT_DIR = "outputs"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.mount("/downloads", StaticFiles(directory=OUTPUT_DIR), name="downloads")
+
 
 def _result_to_text(result) -> str:
     if hasattr(result, "raw") and result.raw:
         return result.raw
     return str(result)
+
+
+def _download_path(file_path: str) -> str:
+    return f"/downloads/{os.path.basename(file_path)}"
+
+
+def _next_output_path(directory: str, base_name: str, extension: str) -> str:
+    candidate = os.path.join(directory, f"{base_name}{extension}")
+    if not os.path.exists(candidate):
+        return candidate
+
+    index = 2
+    while True:
+        candidate = os.path.join(directory, f"{base_name}{index}{extension}")
+        if not os.path.exists(candidate):
+            return candidate
+        index += 1
 
 
 def clean_json_text(raw_text: str) -> str:
@@ -300,7 +329,7 @@ async def generate_testcases(file: UploadFile = File(...)):
     result = run_agents(frs_text)
     raw_text = _result_to_text(result)
 
-    text_output_path = os.path.join(OUTPUT_DIR, "test_cases.txt")
+    text_output_path = _next_output_path(OUTPUT_DIR, "test_cases", ".txt")
     with open(text_output_path, "w", encoding="utf-8") as f:
         f.write(raw_text)
 
@@ -312,6 +341,7 @@ async def generate_testcases(file: UploadFile = File(...)):
         return {
             "message": "TXT file generated, but AI output is not valid JSON so Excel could not be structured.",
             "txt_file": text_output_path,
+            "txt_download": _download_path(text_output_path),
             "preview": saved_text[:1000]
         }
 
@@ -320,12 +350,14 @@ async def generate_testcases(file: UploadFile = File(...)):
 
     parsed_result = _sanitize_test_cases(parsed_result)
 
-    excel_output_path = os.path.join(OUTPUT_DIR, "test_cases.xlsx")
+    excel_output_path = _next_output_path(OUTPUT_DIR, "test_cases", ".xlsx")
     create_excel(parsed_result, excel_output_path)
 
     return {
         "message": "Success",
         "txt_file": text_output_path,
+        "txt_download": _download_path(text_output_path),
         "excel_file": excel_output_path,
+        "excel_download": _download_path(excel_output_path),
         "count": len(parsed_result)
     }

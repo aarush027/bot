@@ -1,8 +1,13 @@
-from crewai import Agent
-from langchain_google_genai import ChatGoogleGenerativeAI
+import os
 
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash",
+from crewai import Agent, LLM
+from dotenv import load_dotenv
+
+load_dotenv()
+
+llm = LLM(
+    model="gemini/gemini-2.5-flash",
+    api_key=os.getenv("GOOGLE_API_KEY"),
     temperature=0.2
 )
 
