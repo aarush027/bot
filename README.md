@@ -1,41 +1,47 @@
-## Project structure
+-----------------------------
+GENERAL PREREQUISITES CHECK
+-----------------------------
 
-- `backend/` contains the CrewAI + FastAPI app
-- `frontend/` contains the Vite React UI
+python --version
+pip --version
 
-## Backend setup
 
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-pip install -r backend\requirements.txt
-pip install python-multipart
-```
+===================================================
+BACKEND SETUP (FastAPI)
+===================================================
 
-Run from the repo root `C:\bot`:
+1. Use python 3.12(very important)
 
-```powershell
-uvicorn backend.app.main:app --reload
-```
+2. Create Python virtual environment
 
-Or, if you `cd backend` first, use:
+py -3.12 -m venv .venv
 
-```powershell
-uvicorn app.main:app --reload
-```
+3. Activate virtual environment
 
-Swagger UI: `http://127.0.0.1:8000/docs`
+.venv\Scripts\activate
 
-## Frontend setup
+5. Upgrade pip (recommended)
 
-```powershell
-Set-Location frontend
-npm install
-npm run dev
-```
-
-## Optional pip upgrade
-
-```powershell
 python.exe -m pip install --upgrade pip
-```
+
+
+6. Install backend dependencies
+
+pip install fastapi uvicorn[standard] openpyxl python-multipart pandas pypdfium2 python-dotenv sqlalchemy asyncpg psycopg2-binary xlsxwriter
+
+pip install python-multipart
+
+
+7. Start FastAPI backend server
+
+uvicorn app.main:app --reload
+
+
+8. Backend URLs
+
+Base URL:
+http://127.0.0.1:8000
+
+Swagger API Docs:
+http://127.0.0.1:8000/docs
+
