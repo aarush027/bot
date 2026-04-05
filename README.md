@@ -27,7 +27,7 @@ python.exe -m pip install --upgrade pip
 
 6. Install backend dependencies
 
-pip install fastapi uvicorn[standard] openpyxl python-multipart pandas pypdfium2 python-dotenv sqlalchemy asyncpg psycopg2-binary xlsxwriter
+pip install fastapi uvicorn[standard] crewai langchain langchain-google-genai python-dotenv pandas openpyxl PyPDF2 pypdfium2 google-generativeai
 
 pip install python-multipart
 
@@ -40,7 +40,7 @@ uvicorn app.main:app --reload
 8. Backend URLs
 
 Base URL:
-http://127.0.0.1:8000
+http://127.0.0.:8000
 
 Swagger API Docs:
 http://127.0.0.1:8000/docs
